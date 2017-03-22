@@ -7,7 +7,7 @@ numeroDeAmostrasParaTeste = 100;
 numeroDeAmostrasParaTreino = numeroDeAmostras - numeroDeAmostrasParaTeste;
 taxaDeAprendizado = 0.01;
 
-x = linspace(-1,1,numeroDeAmostras);
+x = linspace(-5,5,numeroDeAmostras);
 y_orig = sin(x);
 y = y_orig + rand(1, numeroDeAmostras)/5;
 y_final = zeros(1,numeroDeAmostrasParaTreino);
@@ -78,31 +78,24 @@ for epoca = 1:numeroDeEpocas
     
 end
 
-yDoTeste = zeros(1, numeroDeAmostrasParaTeste);
+for entradaDoTreino = 1:numeroDeAmostrasParaTeste
+entradasDoNeuronioDeSaidaDoTeste = zeros(numeroDeBases, 1);
 
-for entradaDoTeste = 1:numeroDeAmostrasParaTeste
-    
-    entradaAtual = x_teste(1, entradaDoTeste);
+for j = 1:numeroDeBases
+    baseAtual = x_treino(1, indicesDasBases(1,j));
+    entradasDoNeuronioDeSaidaDoTeste(j, 1) = gaussiana(entradaAtual, baseAtual);
+end
 
-    entradasDoNeuronioDeSaidaDoTeste = zeros(numeroDeBases, 1);
-    
-    for j = 1:numeroDeBases
-        baseAtual = x_treino(1, indicesDasBases(1,j));
-        entradasDoNeuronioDeSaidaDoTeste(j, 1) = gaussiana(entradaAtual, baseAtual);
-    end
-    
-    uDoNeuronioDeSaida = pesosDoNeuronioDeSaida.' * [-1; entradasDoNeuronioDeSaidaDoTeste];
-    yDoTeste(1, entradaDoTeste) = uDoNeuronioDeSaida;
-    erroNaSaida = y_teste(1, entradaDoTeste) - uDoNeuronioDeSaida;
-    
+uDoNeuronioDeSaida = pesosDoNeuronioDeSaida.' * [-1; entradasDoNeuronioDeSaida];
+        
+erroNaSaida = y_treino(1, i) - uDoNeuronioDeSaida;
 end
 % plot(t,x,'color','r'); hold on;
 % plot(t,y,'color','b');
 
 % plot(x_treino, y_treino,'.', 'color','r' ); hold on;
 % plot(x_treino, y_final,'x', 'color','b');
-plot(x_teste, y_teste,'.', 'color','r'); hold on;
-plot(x_teste, yDoTeste,'x', 'color','b');
+plot(x_teste, y_teste,'x', 'color','g');
 disp(menorErro);
 
 
