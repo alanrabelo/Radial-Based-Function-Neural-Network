@@ -15,20 +15,53 @@ y_final = zeros(1,numeroDeAmostrasParaTreino);
 
 indicesDeTreino = randperm(numeroDeAmostras);
 
-x_treino = x(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
 
-x_teste = x(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
-
-y_treino = y(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
-y_teste =  y(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
 
 menorErroQuadraticoMedio = 20000;
 melhorNumeroDeBases = 0;
 melhorValorDeSigma = 0;
 
+x_treino = x(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
+x_teste = x(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
+y_treino = y(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
+y_teste =  y(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
+% for i = 0:4
+%     if i == 4
+%         x_treino = x(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
+%         x_teste = x(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
+%         y_treino = y(indicesDeTreino(1, 1:numeroDeAmostrasParaTreino));
+%         y_teste =  y(indicesDeTreino(1, numeroDeAmostrasParaTreino+1:numeroDeAmostras));
+%         continue
+%     end
+%     if i == 0
+%         x_treino = x(indicesDeTreino(1, numeroDeAmostrasParaTeste+1:numeroDeAmostras));
+%         x_teste = x(indicesDeTreino(1, 1:numeroDeAmostrasParaTeste));
+%         y_treino = y(indicesDeTreino(1, numeroDeAmostrasParaTeste+1:numeroDeAmostras));
+%         y_teste =  y(indicesDeTreino(1, 1:numeroDeAmostrasParaTeste));
+%         continue
+%     end
+%     
+%      x_treino = [x(indicesDeTreino(1, 1:numeroDeAmostrasParaTeste * i)) x(indicesDeTreino(1, (numeroDeAmostrasParaTeste * i )+1:numeroDeAmostras))];
+%      x_teste = x(indicesDeTreino(1, 1:numeroDeAmostrasParaTeste));
+%      y_treino = y(indicesDeTreino(1, numeroDeAmostrasParaTeste+1:numeroDeAmostras));
+%      y_teste =  y(indicesDeTreino(1, 1:numeroDeAmostrasParaTeste));
+%             
+%     
+%     
+%     
+%     
+% end
+
+% Pega todos os Valores dos Erros
+
+arrayDeErrosMedios = zeros(32, 10);
+arrayDeDesviosPadrao = zeros(32,10);
+
+
 for numeroDeBasesIndex = 5:5:160
     
     for valorDeSigma = 0.05 : 0.05: 0.5
+          
         numeroDeBases = numeroDeBasesIndex;
         normalize = true;
         
@@ -72,10 +105,6 @@ for numeroDeBasesIndex = 5:5:160
             
             erroQuadraticoMedio = sqrt(somatoriaDoErroPorEpoca / numeroDeAmostrasParaTreino);
             
-                
-            
-            
-            
         end
         
         yDoTeste = zeros(1, numeroDeAmostrasParaTeste);
@@ -98,18 +127,32 @@ for numeroDeBasesIndex = 5:5:160
             somatoriaDoErroPorEpoca = (somatoriaDoErroPorEpoca + erroNaSaida.^2);
         end
         
+        %Calculando desvio padrao
+        erroMedio = somatoriaDoErroPorEpoca / numeroDeAmostrasParaTeste;
         erroQuadraticoMedio = sqrt(somatoriaDoErroPorEpoca / numeroDeAmostrasParaTeste);
+        arrayDeErrosMedios(numeroDeBasesIndex/5, valorDeSigma / 0.05) = erroQuadraticoMedio;
+
+        
         if menorErroQuadraticoMedio > erroQuadraticoMedio
             menorErroQuadraticoMedio = erroQuadraticoMedio;
             melhorNumeroDeBases = numeroDeBasesIndex;
             melhorValorDeSigma = valorDeSigma;
         end
+        
+        sum = 0;
+        for yZinho = 1:size(yDoTeste, 2)
+            sum = sum + (y_teste(1, entradaDoTeste) - yDoTeste(1, yZinho) - erroMedio).^2;
+        end
+        
+        desviopadrao = sqrt(sum / numeroDeAmostrasParaTeste);
+        arrayDeDesviosPadrao(numeroDeBasesIndex/5, valorDeSigma / 0.05) = desviopadrao;
+
         % plot(t,x,'color','r'); hold on;
         % plot(t,y,'color','b');
         
         % plot(x_treino, y_treino,'.', 'color','r' ); hold on;
         % plot(x_treino, y_final,'x', 'color','b');
-        plot(x_teste, y_teste,'.', 'color','r');
+        plot(x_teste, y_teste,'.', 'color','r'); hold on;
         plot(x_teste, yDoTeste,'x', 'color','b');
         disp(numeroDeBasesIndex)
         disp(valorDeSigma)
